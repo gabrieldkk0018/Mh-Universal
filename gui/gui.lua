@@ -1,1 +1,1 @@
-
+print("arquivo carregado")
