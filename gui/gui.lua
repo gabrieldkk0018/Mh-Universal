@@ -1,11 +1,9 @@
--- MH Universal - Titanz GUI
+-- MH Universal - Titanz GUI (FIXED)
 -- gui/gui.lua
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-
-local LocalPlayer = Players.LocalPlayer
 
 -- ================= COLORS =================
 
@@ -38,7 +36,6 @@ Main.Position = UDim2.new(0.5, -170, 0.5, -150)
 Main.BackgroundColor3 = COLORS.Background
 Main.BorderSizePixel = 0
 Main.Active = true
-Main.Draggable = false
 
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 14)
 
@@ -48,6 +45,8 @@ local Header = Instance.new("Frame", Main)
 Header.Size = UDim2.new(1, 0, 0, 50)
 Header.BackgroundColor3 = COLORS.Surface
 Header.BorderSizePixel = 0
+Header.Active = true
+
 Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 14)
 
 local Title = Instance.new("TextLabel", Header)
@@ -58,7 +57,7 @@ Title.Text = "MH Universal | Beta"
 Title.TextColor3 = COLORS.Accent
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 14
-Title.TextXAlignment = Left
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
 local MinBtn = Instance.new("TextButton", Header)
 MinBtn.Size = UDim2.new(0, 32, 0, 32)
@@ -69,6 +68,7 @@ MinBtn.TextSize = 22
 MinBtn.TextColor3 = COLORS.Text
 MinBtn.BackgroundColor3 = COLORS.Surface
 MinBtn.BorderSizePixel = 0
+
 Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 8)
 
 -- ================= CONTENT =================
@@ -80,15 +80,20 @@ Content.BackgroundTransparency = 1
 
 local Layout = Instance.new("UIListLayout", Content)
 Layout.Padding = UDim.new(0, 10)
-Layout.HorizontalAlignment = Center
+Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- ================= BUTTON / TOGGLE =================
+Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    Content.Size = UDim2.new(1, 0, 0, Layout.AbsoluteContentSize.Y + 10)
+end)
+
+-- ================= TOGGLE =================
 
 local function createToggle(text, callback)
     local Holder = Instance.new("Frame", Content)
     Holder.Size = UDim2.new(0.9, 0, 0, 40)
     Holder.BackgroundColor3 = COLORS.Surface
     Holder.BorderSizePixel = 0
+
     Instance.new("UICorner", Holder).CornerRadius = UDim.new(0, 10)
 
     local Label = Instance.new("TextLabel", Holder)
@@ -99,13 +104,14 @@ local function createToggle(text, callback)
     Label.TextColor3 = COLORS.Text
     Label.Font = Enum.Font.GothamBold
     Label.TextSize = 12
-    Label.TextXAlignment = Left
+    Label.TextXAlignment = Enum.TextXAlignment.Left
 
     local Switch = Instance.new("Frame", Holder)
     Switch.Size = UDim2.new(0, 42, 0, 22)
     Switch.Position = UDim2.new(1, -52, 0.5, -11)
     Switch.BackgroundColor3 = Color3.fromRGB(70, 70, 90)
     Switch.BorderSizePixel = 0
+
     Instance.new("UICorner", Switch).CornerRadius = UDim.new(1, 0)
 
     local Knob = Instance.new("Frame", Switch)
@@ -113,6 +119,7 @@ local function createToggle(text, callback)
     Knob.Position = UDim2.new(0, 2, 0.5, -9)
     Knob.BackgroundColor3 = COLORS.Text
     Knob.BorderSizePixel = 0
+
     Instance.new("UICorner", Knob).CornerRadius = UDim.new(1, 0)
 
     local Button = Instance.new("TextButton", Holder)
@@ -139,18 +146,18 @@ local function createToggle(text, callback)
     end)
 end
 
--- ================= TEST TOGGLES =================
+-- ================= TEST BUTTONS =================
 
-createToggle("ESP (TESTE)", function(state)
-    print("[GUI] ESP:", state)
+createToggle("ESP (TESTE)", function(v)
+    print("ESP:", v)
 end)
 
-createToggle("Aimbot (TESTE)", function(state)
-    print("[GUI] Aimbot:", state)
+createToggle("AIMBOT (TESTE)", function(v)
+    print("Aimbot:", v)
 end)
 
-createToggle("FPS Boost (TESTE)", function(state)
-    print("[GUI] FPS Boost:", state)
+createToggle("FPS BOOST (TESTE)", function(v)
+    print("FPS:", v)
 end)
 
 -- ================= MINIMIZE =================
@@ -161,7 +168,7 @@ MinBtn.MouseButton1Click:Connect(function()
     MinBtn.Text = minimized and "+" or "-"
 
     tween(Main, tweenFast, {
-        Size = minimized and UDim2.new(0, 340, 0, 55) or UDim2.new(0, 340, 0, 300)
+        Size = minimized and UDim2.new(0, 340, 0, 50) or UDim2.new(0, 340, 0, 300)
     })
 
     Content.Visible = not minimized
@@ -172,7 +179,8 @@ end)
 local dragging, dragStart, startPos
 
 Header.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = Main.Position
@@ -180,7 +188,8 @@ Header.InputBegan:Connect(function(input)
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
         Main.Position = UDim2.new(
             startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -190,9 +199,10 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
     end
 end)
 
-print("[MH Universal] GUI Titanz carregada")
+print("[MH Universal] GUI Titanz carregada corretamente")
